@@ -63,12 +63,10 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
             uri = "/keywordstool"
             method = "GET"
 
-            # 첫 번째 입력 키워드 기준으로 50개 강제 확장 파라미터 적용
+            # 핵심: showDetail 파라미터를 완전히 제거해야 50개 연관키워드가 확장됨
             main_keyword = input_keywords[0].replace(" ", "")
             params = {
-                "hintKeywords": main_keyword,
-                "showDetail": "1",
-                "includeHintKeywords": "1"
+                "hintKeywords": main_keyword
             }
 
             sig = generate_signature(timestamp, method, uri, AD_SECRET_KEY)
