@@ -38,7 +38,7 @@ def generate_signature(timestamp, method, uri, secret_key):
 # 메인 키워드 입력창
 st.subheader("🔍 키워드 입력")
 st.caption(
-    "대표 키워드를 입력해 주세요. (예: LED바, 24vled바 / 세부 키워드는 대표 키워드와 함께 입력하면 연관키워드가 풍부하게 추출됩니다.)"
+    "대표 키워드를 입력해 주세요. (예: LED바, 24vled바)"
 )
 
 keyword_input_raw = st.text_area(
@@ -63,10 +63,11 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
             uri = "/keywordstool"
             method = "GET"
 
-            # 입력된 모든 키워드를 쉼표로 연결하여 API 전달
+            # 쉼표로 연결하되 showDetail을 문자열 "1"로 전달해 세부 데이터(클릭수/경쟁정도) 수집
             hint_keywords = ",".join([k.replace(" ", "") for k in input_keywords[:5]])
             params = {
-                "hintKeywords": hint_keywords
+                "hintKeywords": hint_keywords,
+                "showDetail": "1"
             }
 
             sig = generate_signature(timestamp, method, uri, AD_SECRET_KEY)
@@ -115,8 +116,8 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
                                 ),
                                 "월평균클릭수(PC)": str(clk_pc),
                                 "월평균클릭수(모바일)": str(clk_mobile),
-                                "월평균클릭률(PC)": f"{ctr_pc}%",
-                                "월평균클릭률(모바일)": f"{ctr_mobile}%",
+                                "월평균클릭률(PC)": f"{ctr_pc}%" if isinstance(ctr_pc, (int, float)) else str(ctr_pc),
+                                "월평균클릭률(모바일)": f"{ctr_mobile}%" if isinstance(ctr_mobile, (int, float)) else str(ctr_mobile),
                                 "경쟁정도": comp,
                             }
                         )
