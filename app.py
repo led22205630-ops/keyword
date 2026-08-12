@@ -36,36 +36,37 @@ def generate_signature(timestamp, method, uri, secret_key):
 
 
 # 메인 키워드 입력창
-st.subheader("🔍 키워드 입력 (최대 5개)")
+st.subheader("🔍 키워드 입력")
 st.caption(
-    "쉼표(,) 또는 줄바꿈으로 구분해서 입력해 주세요. (예: 방수LED바, SMPS24V, 알루미늄방열판)"
+    "대표 키워드를 입력해 주세요. 입력하신 대표 키워드를 기준으로 연관키워드 최대 50개를 확장 분석합니다."
 )
 
 keyword_input_raw = st.text_area(
-    "분석할 키워드를 입력하세요",
-    value="24vled바, 방수형led바, 12vled바",
+    "분석할 키워드를 입력하세요 (예: 24vled바)",
+    value="24vled바",
     height=100,
 )
 
+# 첫 번째 키워드를 메인 시드 키워드로 추출
 input_keywords = [
     k.strip()
     for k in keyword_input_raw.replace("\n", ",").split(",")
     if k.strip()
-][:5]
+]
 
 if st.button("🚀 키워드 분석 실행", type="primary"):
     if not input_keywords:
         st.warning("분석할 키워드를 입력해 주세요.")
     else:
-        with st.spinner("단 1~2초 만에 핵심 연관키워드 데이터를 수집 중입니다..."):
+        with st.spinner("단 1~2초 만에 연관키워드 50개를 분석 중입니다..."):
             timestamp = str(int(time.time() * 1000))
             uri = "/keywordstool"
             method = "GET"
 
-            # 띄어쓰기 제거 및 쉼표 연동
-            hint_keywords = ",".join(input_keywords).replace(" ", "")
+            # 핵심: 단일 시드 키워드로 조회해야 네이버 API가 연관키워드를 50개까지 확장해서 반환함
+            main_hint_keyword = input_keywords[0].replace(" ", "")
             params = {
-                "hintKeywords": hint_keywords,
+                "hintKeywords": main_hint_keyword,
                 "showDetail": "1"
             }
 
@@ -134,7 +135,7 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
                         label="📥 분석 결과 엑셀(CSV) 다운로드",
                         data=csv,
                         file_name=(
-                            f"대경엘이디_키워드분석_{input_keywords[0]}.csv"
+                            f"대경엘이디_키워드분석_{main_hint_keyword}.csv"
                         ),
                         mime="text/csv",
                     )
