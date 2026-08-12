@@ -38,12 +38,12 @@ def generate_signature(timestamp, method, uri, secret_key):
 # 메인 키워드 입력창
 st.subheader("🔍 키워드 입력")
 st.caption(
-    "대표 키워드를 입력해 주세요. 입력하신 대표 키워드를 기준으로 연관키워드 최대 50개를 확장 분석합니다."
+    "대표 키워드를 입력해 주세요. (예: LED바, 24vled바 / 세부 키워드는 대표 키워드와 함께 입력하면 연관키워드가 풍부하게 추출됩니다.)"
 )
 
 keyword_input_raw = st.text_area(
-    "분석할 키워드를 입력하세요 (예: 24vled바)",
-    value="24vled바",
+    "분석할 키워드를 입력하세요 (예: LED바, 24vled바)",
+    value="LED바, 24vled바",
     height=100,
 )
 
@@ -58,15 +58,15 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
     if not input_keywords:
         st.warning("분석할 키워드를 입력해 주세요.")
     else:
-        with st.spinner("단 1~2초 만에 연관키워드 50개를 분석 중입니다..."):
+        with st.spinner("단 1~2초 만에 연관키워드를 분석 중입니다..."):
             timestamp = str(int(time.time() * 1000))
             uri = "/keywordstool"
             method = "GET"
 
-            # 핵심: showDetail 파라미터를 완전히 제거해야 50개 연관키워드가 확장됨
-            main_keyword = input_keywords[0].replace(" ", "")
+            # 입력된 모든 키워드를 쉼표로 연결하여 API 전달
+            hint_keywords = ",".join([k.replace(" ", "") for k in input_keywords[:5]])
             params = {
-                "hintKeywords": main_keyword
+                "hintKeywords": hint_keywords
             }
 
             sig = generate_signature(timestamp, method, uri, AD_SECRET_KEY)
@@ -134,7 +134,7 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
                         label="📥 분석 결과 엑셀(CSV) 다운로드",
                         data=csv,
                         file_name=(
-                            f"대경엘이디_키워드분석_{main_keyword}.csv"
+                            f"대경엘이디_키워드분석_{input_keywords[0]}.csv"
                         ),
                         mime="text/csv",
                     )
