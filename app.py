@@ -43,7 +43,7 @@ st.caption(
 
 keyword_input_raw = st.text_area(
     "분석할 키워드를 입력하세요",
-    value="방수LED바, SMPS24V, 알루미늄방열판",
+    value="24vled바, 방수형led바, 12vled바",
     height=100,
 )
 
@@ -57,14 +57,17 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
     if not input_keywords:
         st.warning("분석할 키워드를 입력해 주세요.")
     else:
-        # 대기 시간 없는 초고속 로딩 텍스트
         with st.spinner("단 1~2초 만에 핵심 연관키워드 데이터를 수집 중입니다..."):
             timestamp = str(int(time.time() * 1000))
             uri = "/keywordstool"
             method = "GET"
 
-            hint_keywords = ",".join(input_keywords)
-            params = {"hintKeywords": hint_keywords, "showDetail": "1"}
+            # 띄어쓰기 제거 및 쉼표 연동
+            hint_keywords = ",".join(input_keywords).replace(" ", "")
+            params = {
+                "hintKeywords": hint_keywords,
+                "showDetail": "1"
+            }
 
             sig = generate_signature(timestamp, method, uri, AD_SECRET_KEY)
             headers = {
@@ -84,7 +87,6 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
                     data = response.json().get("keywordList", [])
 
                     result_rows = []
-                    progress_bar = st.progress(0)
                     total_items = min(len(data), 50)
 
                     for idx, item in enumerate(data[:total_items]):
@@ -98,7 +100,6 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
                         ctr_mobile = item.get("monthlyAveMobileCtr", 0)
                         comp = item.get("compIdx", "-")
 
-                        # 불필요한 카테고리 수집 로직 및 대기시간(Sleep) 완전 삭제
                         result_rows.append(
                             {
                                 "연관키워드": kw,
@@ -119,8 +120,6 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
                                 "경쟁정도": comp,
                             }
                         )
-
-                        progress_bar.progress((idx + 1) / total_items)
 
                     df = pd.DataFrame(result_rows)
 
