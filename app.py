@@ -47,7 +47,7 @@ keyword_input_raw = st.text_area(
     height=100,
 )
 
-# 첫 번째 키워드를 메인 시드 키워드로 추출
+# 입력 키워드 추출
 input_keywords = [
     k.strip()
     for k in keyword_input_raw.replace("\n", ",").split(",")
@@ -63,11 +63,12 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
             uri = "/keywordstool"
             method = "GET"
 
-            # 핵심: 단일 시드 키워드로 조회해야 네이버 API가 연관키워드를 50개까지 확장해서 반환함
-            main_hint_keyword = input_keywords[0].replace(" ", "")
+            # 첫 번째 입력 키워드 기준으로 50개 강제 확장 파라미터 적용
+            main_keyword = input_keywords[0].replace(" ", "")
             params = {
-                "hintKeywords": main_hint_keyword,
-                "showDetail": "1"
+                "hintKeywords": main_keyword,
+                "showDetail": "1",
+                "includeHintKeywords": "1"
             }
 
             sig = generate_signature(timestamp, method, uri, AD_SECRET_KEY)
@@ -135,7 +136,7 @@ if st.button("🚀 키워드 분석 실행", type="primary"):
                         label="📥 분석 결과 엑셀(CSV) 다운로드",
                         data=csv,
                         file_name=(
-                            f"대경엘이디_키워드분석_{main_hint_keyword}.csv"
+                            f"대경엘이디_키워드분석_{main_keyword}.csv"
                         ),
                         mime="text/csv",
                     )
